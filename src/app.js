@@ -1,7 +1,7 @@
 "use strict";
 require("dotenv").config();
 const bodyParser = require("body-parser");
-//const cors = require("cors");
+const cors = require("cors");
 const express = require("express");
 //const fs = require("fs");
 const helmet = require("helmet");
@@ -11,7 +11,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(cors());
+app.use(cors());
 app.use(helmet.hidePoweredBy({ setTo: "PHP 7.4.3" }));
 app.use(helmet.frameguard({ action: "deny" }));
 app.use(helmet.xssFilter({}));
@@ -20,7 +20,7 @@ app.use(helmet.ieNoOpen());
 let timeInSeconds = 90 * 24 * 60 * 60;
 app.use(helmet.hsts({ maxAge: timeInSeconds, force: true }));
 app.use(helmet.dnsPrefetchControl());
-app.use(helmet.referrerPolicy({ policy: "same-origin" }));
+//app.use(helmet.referrerPolicy({ policy: "same-origin" }));
 app.use(
   helmet.contentSecurityPolicy({
     directives: {
