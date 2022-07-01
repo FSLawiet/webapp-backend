@@ -37,7 +37,9 @@ module.exports = (app) => {
       const newResult = new ResultModel({
         quarter: quarter,
         grades: grades,
+        average: average,
         time: dates,
+        time_delta: time_delta,
         comment: comment,
         index: index,
       });
@@ -60,51 +62,28 @@ module.exports = (app) => {
       if (req.query.best) {
         StudentModel.find()
           .sort({ "results.index": -1 })
+          .limit(6)
           .exec((err, data) => {
             if (err || !data) {
               console.log(err);
             } else {
               //console.log("Lista de alunos:", data);
-              let results = [];
-              for (let i = 0; i < data.length; i++) {
-                let name = data[i].name;
-                let _id = data[i]._id;
-
-                let best_index = 0;
-                let count = 0;
-                for (let j = 0; j < data[i].results.length; j++) {
-                  if (data[i].results[j].index.toFixed(1) > best_index) {
-                    best_index = data[i].results[j].index.toFixed(1);
-                    count = j;
-                  }
+              for (let student of data) {
+                for (let result of student.results) {
+                  result.average = average(
+                    result.grades[0],
+                    result.grades[1],
+                    result.grades[2]
+                  );
+                  result.time_delta = time_delta(
+                    result.time[0].getHours(),
+                    result.time[0].getMinutes(),
+                    result.time[1].getHours(),
+                    result.time[1].getMinutes()
+                  );
                 }
-                results.push({
-                  student_id: _id,
-                  student_name: name,
-                  quarter: data[i].results[count].quarter,
-                  grades: data[i].results[count].grades,
-                  average: average(
-                    data[i].results[count].grades[0],
-                    data[i].results[count].grades[1],
-                    data[i].results[count].grades[2]
-                  ),
-                  time: time_delta(
-                    data[i].results[count].time[0].getHours(),
-                    data[i].results[count].time[0].getMinutes(),
-                    data[i].results[count].time[1].getHours(),
-                    data[i].results[count].time[1].getMinutes()
-                  ),
-                  comment: data[i].results[count].comment,
-                  index: data[i].results[count].index,
-                });
               }
-              console.log(results);
-              let ctrl = results.length;
-              for (let i = ctrl; i > 6; i--) {
-                results.pop();
-              }
-              console.log(results);
-              res.json(results);
+              res.json(data);
             }
           });
       } else {
@@ -113,39 +92,22 @@ module.exports = (app) => {
             console.log(err);
           } else {
             //console.log("Lista de alunos:", data);
-            let results = [];
-            for (let i = 0; i < data.length; i++) {
-              let name = data[i].name;
-              let _id = data[i]._id;
-
-              for (let j = 0; j < data[i].results.length; j++) {
-                let is_approved =
-                  data[i].results[j].index.toFixed(1) >= 4.2 ? true : false;
-
-                results.push({
-                  student_id: _id,
-                  student_name: name,
-                  quarter: data[i].results[j].quarter,
-                  grades: data[i].results[j].grades,
-                  average: average(
-                    data[i].results[j].grades[0],
-                    data[i].results[j].grades[1],
-                    data[i].results[j].grades[2]
-                  ),
-                  time: time_delta(
-                    data[i].results[j].time[0].getHours(),
-                    data[i].results[j].time[0].getMinutes(),
-                    data[i].results[j].time[1].getHours(),
-                    data[i].results[j].time[1].getMinutes()
-                  ),
-                  comment: data[i].results[j].comment,
-                  index: data[i].results[j].index,
-                  is_approved: is_approved,
-                });
+            for (let student of data) {
+              for (let result of student.results) {
+                result.average = average(
+                  result.grades[0],
+                  result.grades[1],
+                  result.grades[2]
+                );
+                result.time_delta = time_delta(
+                  result.time[0].getHours(),
+                  result.time[0].getMinutes(),
+                  result.time[1].getHours(),
+                  result.time[1].getMinutes()
+                );
               }
             }
-            //console.log(results);
-            res.json(results);
+            res.json(data);
           }
         });
       }
@@ -185,7 +147,9 @@ module.exports = (app) => {
           const result = new ResultModel({
             quarter: quarter,
             grades: grades,
+            average: average,
             time: dates,
+            time_delta: time_delta,
             comment: comment,
             index: index,
           });

@@ -34,6 +34,9 @@ app.use(
 const api = require("./routes/api");
 
 api(app);
+app.get("/", (req, res) => {
+  res.send("Olá!");
+});
 
 app.use(function (req, res, next) {
   res.status(404).type("text").send("Página não encontrada.");

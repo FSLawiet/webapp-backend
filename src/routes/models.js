@@ -4,7 +4,9 @@ const { Schema } = mongoose;
 const resultSchema = new Schema({
   quarter: { type: Number, required: true },
   grades: { type: [Number], required: true },
+  average: { type: Number, required: true },
   time: { type: [Date] },
+  time_delta: { type: Number, required: true },
   comment: { type: String },
   index: { type: Number },
 });
